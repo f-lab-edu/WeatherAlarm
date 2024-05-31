@@ -1,4 +1,4 @@
-package com.ysw.weatheralarm.ui.theme
+package com.ysw.presentation.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
