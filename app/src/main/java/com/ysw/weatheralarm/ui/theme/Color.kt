@@ -1,4 +1,4 @@
-package com.ysw.weatherAlram.ui.theme
+package com.ysw.weatheralarm.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

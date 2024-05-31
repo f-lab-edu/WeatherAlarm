@@ -1,4 +1,4 @@
-package com.ysw.weatherAlram
+package com.ysw.weatheralarm
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

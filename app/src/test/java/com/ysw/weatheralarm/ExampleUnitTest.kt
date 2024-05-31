@@ -1,4 +1,4 @@
-package com.ysw.weatherAlram
+package com.ysw.weatheralarm
 
 import org.junit.Test
 
