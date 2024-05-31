@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ysw.weatherAlram"
+    namespace = "com.ysw.weatheralarm"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.ysw.weatherAlram"
+        applicationId = "com.ysw.weatheralarm"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
