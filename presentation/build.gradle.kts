@@ -69,4 +69,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //TimePicker
+    implementation("com.github.commandiron:WheelPickerCompose:1.1.11")
+    //Extends Material3
+    implementation ("androidx.compose.material:material-icons-extended:1.7.0-beta02")
+
 }
