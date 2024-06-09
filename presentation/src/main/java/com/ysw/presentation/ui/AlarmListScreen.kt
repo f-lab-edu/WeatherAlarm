@@ -1,5 +1,6 @@
 package com.ysw.presentation.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -24,15 +25,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ysw.presentation.ui.theme.MyApplicationTheme
+import androidx.navigation.NavController
 
+/**
+ * Alarm list screen
+ *
+ * @param navController
+ */
 @Composable
-internal fun AlarmListView(
-    modifier: Modifier = Modifier,
+fun AlarmListScreen(
+    navController: NavController
 ) {
+
     val dummyList: List<DummyDataClass> = listOf(
         DummyDataClass(
             amPm = "오전",
@@ -56,11 +62,14 @@ internal fun AlarmListView(
             isOn = true
         ),
     )
+
     Scaffold(
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*TODO : 알람 추가로 이동하기 */ },
+                onClick = {
+                    navController.navigate("AlarmSettingScreen")
+                },
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -71,19 +80,25 @@ internal fun AlarmListView(
     ) { innerPadding ->
         AlarmListColumn(
             alarmData = dummyList,
-            paddingValues = innerPadding
+            paddingValues = innerPadding,
+            navController = navController
         )
     }
 
-
 }
 
-
+/**
+ * Alarm list column
+ *
+ * @param alarmData
+ * @param paddingValues
+ * @param navController
+ */
 @Composable
 private fun AlarmListColumn(
-    modifier: Modifier = Modifier,
     alarmData: List<DummyDataClass> = emptyList(),
-    paddingValues: PaddingValues = PaddingValues()
+    paddingValues: PaddingValues = PaddingValues(),
+    navController: NavController
 ) {
     LazyColumn(
         modifier = Modifier
@@ -91,19 +106,33 @@ private fun AlarmListColumn(
             .padding(paddingValues),
         contentPadding = PaddingValues(16.dp),
     ) {
-        items(alarmData) { alarm -> SetAlarmItem(alarm) }
+        items(alarmData) { alarm ->
+            AlarmItem(item = alarm) {
+                navController.navigate("AlarmSettingScreen")
+            }
+        }
     }
-
 }
 
+/**
+ * Alarm LazyColumn item
+ *
+ * @param item
+ * @param onClick
+ * @receiver
+ */
 @Composable
-private fun SetAlarmItem(
-    item: DummyDataClass
+private fun AlarmItem(
+    item: DummyDataClass,
+    onClick: () -> Unit = {}
 ) {
     var checked by remember { mutableStateOf(item.isOn) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
             .padding(10.dp),
     ) {
         Row(
@@ -124,16 +153,10 @@ private fun SetAlarmItem(
     }
 }
 
-@Preview
-@Composable
-fun PreAlarmListView(
-) {
-    MyApplicationTheme {
-        AlarmListView()
-    }
-}
-
-
+/**
+ * Dummy Data Class
+ *
+ */
 data class DummyDataClass(
     val amPm: String,
     val hour: Int,

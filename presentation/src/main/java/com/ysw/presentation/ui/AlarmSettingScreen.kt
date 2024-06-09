@@ -34,18 +34,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
+import java.time.LocalTime
 
+/**
+ * 알람 추가, 설정 화면
+ *
+ * @param navController
+ */
 @Composable
 fun AlarmSettingScreen(
-
+    navController: NavController,
 ) {
+
     Scaffold(
         bottomBar = {
             BottomButtons(
-                onCancelClick = { /* 취소 버튼 클릭 시 동작 */ },
-                onDoneClick = { /* 저장 버튼 클릭 시 동작 */ }
+                onCancelClick = { navController.navigateUp() },
+                onDoneClick = {
+                    navController.navigateUp()
+                    //TODO Alarm 추가
+                }
             )
         }
     ) { contentPadding ->
@@ -71,14 +82,21 @@ fun AlarmSettingScreen(
     }
 }
 
+/**
+ * TimePicker View
+ *
+ */
 @Composable
-private fun WheelTimerPickerView() {
+private fun WheelTimerPickerView(
+
+) {
     Box() {
         WheelTimePicker(
             modifier = Modifier.padding(16.dp),
             timeFormat = TimeFormat.AM_PM,
             size = DpSize(400.dp, 300.dp),
             textStyle = MaterialTheme.typography.displayLarge,
+            startTime = LocalTime.now(),
         ) {
 
         }
@@ -87,10 +105,17 @@ private fun WheelTimerPickerView() {
 }
 
 
+/**
+ *  알람이 울릴 날짜를 선택하는 UI의 Chip 부분
+ *
+ * @param list
+ * @param selectedList      알람이 울리는 요일 리스트
+ * @param onOptionSelected  chip 클릭시 이벤트
+ * @receiver
+ */
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun UIDayChipUsingFlowRow(
-    modifier: Modifier = Modifier,
     list: List<String>,
     selectedList: SnapshotStateList<String>,
     onOptionSelected: (String) -> Unit
@@ -99,7 +124,7 @@ private fun UIDayChipUsingFlowRow(
     ) {
         list.forEach {
             FilterChip(
-                modifier = modifier.padding(1.dp),
+                modifier = Modifier.padding(1.dp),
                 selected = it in selectedList,
                 onClick = { onOptionSelected(it) },
                 label = {
@@ -111,20 +136,24 @@ private fun UIDayChipUsingFlowRow(
 
 }
 
+/**
+ * 알람이 울릴 날짜를 선택하는 UI
+ *
+ */
 @Composable
 private fun DayChipUI(
-    modifier: Modifier = Modifier
+
 ) {
-    val list = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+    val dummyList = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
     var selectedList = remember {
         mutableStateListOf<String>()
     }
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth(),
         contentAlignment = Alignment.TopCenter
     ) {
-        UIDayChipUsingFlowRow(list = list, selectedList = selectedList) {
+        UIDayChipUsingFlowRow(list = dummyList, selectedList = selectedList) {
             if (it in selectedList) {
                 selectedList.remove(it)
             } else {
@@ -135,14 +164,18 @@ private fun DayChipUI(
     Divider(color = Color.Gray)
 }
 
+/**
+ * 음량 조절 View
+ *
+ */
 @Composable
 private fun SoundSliderUI(
-    modifier: Modifier = Modifier
+
 ) {
     var sliderPosition by remember { mutableFloatStateOf(0f) }
 
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
     ) {
@@ -160,15 +193,26 @@ private fun SoundSliderUI(
     Divider(color = Color.Gray)
 }
 
+/**
+ *  날씨 별 음악 View
+ *
+ */
 @Composable
 private fun SoundByWeatherView() {
+
     val dummySound =
-        mapOf("맑음" to "노래제목", "비" to "노래제목", "눈" to "노래제목")
+        mapOf("맑음" to "맑음 노래제목", "비" to "비 노래제목", "눈" to "눈 노래제목")
     dummySound.forEach { (weather, song) ->
         SetSoundByWeather(weather, song)
     }
 }
 
+/**
+ * 날씨별 소리 설정
+ *
+ * @param weather 날씨
+ * @param song    해당하는 노래
+ */
 @Composable
 private fun SetSoundByWeather(
     weather: String,
@@ -191,11 +235,18 @@ private fun SetSoundByWeather(
     Divider(color = Color.Gray)
 }
 
+/**
+ * 하단 취소, 저장 버튼
+ *
+ * @param modifier
+ * @param onCancelClick 취소 클릭
+ * @param onDoneClick 저장 클릭
+ */
 @Composable
 private fun BottomButtons(
+    modifier: Modifier = Modifier,
     onCancelClick: () -> Unit,
-    onDoneClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onDoneClick: () -> Unit
 ) {
     Row(
         modifier = modifier
