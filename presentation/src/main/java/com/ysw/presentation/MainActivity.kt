@@ -3,47 +3,50 @@ package com.ysw.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.ysw.presentation.ui.AlarmListScreen
+import com.ysw.presentation.ui.AlarmSettingScreen
 import com.ysw.presentation.ui.theme.MyApplicationTheme
+import com.ysw.presentation.utilities.ALARM_LIST_SCREEN_ROUTE
+import com.ysw.presentation.utilities.ALARM_SETTING_SCREEN_ROUTE
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                val navController = rememberNavController()
+                AppNavHost(navController = navController)
             }
         }
     }
 }
 
+/**
+ * App nav host
+ *
+ * @param navController
+ */
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyApplicationTheme {
-        Greeting("Android")
+fun AppNavHost(
+    navController: NavHostController
+) {
+    NavHost(
+        navController = navController,
+        startDestination = ALARM_LIST_SCREEN_ROUTE
+    ) {
+        composable(route = ALARM_LIST_SCREEN_ROUTE) {
+            AlarmListScreen(navController = navController)
+        }
+        composable(route = ALARM_SETTING_SCREEN_ROUTE) {
+            AlarmSettingScreen(navController = navController)
+        }
     }
 }
+
