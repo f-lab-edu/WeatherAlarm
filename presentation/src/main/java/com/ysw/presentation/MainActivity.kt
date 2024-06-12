@@ -11,6 +11,8 @@ import androidx.navigation.compose.rememberNavController
 import com.ysw.presentation.ui.AlarmListScreen
 import com.ysw.presentation.ui.AlarmSettingScreen
 import com.ysw.presentation.ui.theme.MyApplicationTheme
+import com.ysw.presentation.utilities.ALARM_LIST_SCREEN_ROUTE
+import com.ysw.presentation.utilities.ALARM_SETTING_SCREEN_ROUTE
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -37,12 +39,12 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "AlarmListScreen"
+        startDestination = ALARM_LIST_SCREEN_ROUTE
     ) {
-        composable(route = "AlarmListScreen") {
+        composable(route = ALARM_LIST_SCREEN_ROUTE) {
             AlarmListScreen(navController = navController)
         }
-        composable(route = "AlarmSettingScreen") {
+        composable(route = ALARM_SETTING_SCREEN_ROUTE) {
             AlarmSettingScreen(navController = navController)
         }
     }
