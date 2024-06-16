@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cancel">취소</string>
+    <string name="save">저장</string>
+    <string name="alarm">알람</string>
+</resources>
