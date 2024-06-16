@@ -1,5 +1,6 @@
 package com.ysw.presentation.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,11 +33,16 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
+import com.ysw.presentation.R
+import com.ysw.presentation.alarm.AlarmHandler
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalTime
 
 /**
@@ -46,15 +52,15 @@ import java.time.LocalTime
  */
 @Composable
 fun AlarmSettingScreen(
-    navController: NavController,
+    onDoneClick: () -> Unit
 ) {
 
     Scaffold(
         bottomBar = {
             BottomButtons(
-                onCancelClick = { navController.navigateUp() },
+                onCancelClick = { onDoneClick() },
                 onDoneClick = {
-                    navController.navigateUp()
+                    onDoneClick()
                     //TODO Alarm 추가
                 }
             )
@@ -90,6 +96,8 @@ fun AlarmSettingScreen(
 private fun WheelTimerPickerView(
 
 ) {
+    val context = LocalContext.current
+
     Box() {
         WheelTimePicker(
             modifier = Modifier.padding(16.dp),
@@ -98,7 +106,7 @@ private fun WheelTimerPickerView(
             textStyle = MaterialTheme.typography.displayLarge,
             startTime = LocalTime.now(),
         ) {
-
+            Toast.makeText(context, it.toString(), Toast.LENGTH_SHORT).show()
         }
     }
     Divider(color = Color.Gray)
@@ -248,6 +256,7 @@ private fun BottomButtons(
     onCancelClick: () -> Unit,
     onDoneClick: () -> Unit
 ) {
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -255,15 +264,31 @@ private fun BottomButtons(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         TextButton(
-            onClick = onCancelClick
+            onClick = {
+                onCancelClick
+            }
         ) {
-            Text(text = "취소", color = Color.Black, style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = stringResource(id = R.string.save),
+                color = Color.Black,
+                style = MaterialTheme.typography.headlineMedium
+            )
         }
 
         TextButton(
-            onClick = onDoneClick
+            onClick = {
+                onDoneClick
+                /*
+                alarmHandler.setAlarm(
+                )
+                */
+            }
         ) {
-            Text(text = "저장", color = Color.Black, style = MaterialTheme.typography.headlineMedium)
+            Text(
+                text = stringResource(id = R.string.save),
+                color = Color.Black,
+                style = MaterialTheme.typography.headlineMedium
+            )
         }
     }
 }
