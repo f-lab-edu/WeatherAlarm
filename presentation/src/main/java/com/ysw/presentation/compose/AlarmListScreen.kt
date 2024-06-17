@@ -1,4 +1,4 @@
-package com.ysw.presentation.ui
+package com.ysw.presentation.compose
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

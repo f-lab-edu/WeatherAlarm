@@ -1,4 +1,4 @@
-package com.ysw.presentation.ui
+package com.ysw.presentation.compose
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -37,12 +37,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
 import com.ysw.presentation.R
-import com.ysw.presentation.alarm.AlarmHandler
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalTime
 
 /**
@@ -55,13 +52,14 @@ fun AlarmSettingScreen(
     onDoneClick: () -> Unit
 ) {
 
+    val viewModel = AlarmViewModel()
+
     Scaffold(
         bottomBar = {
             BottomButtons(
                 onCancelClick = { onDoneClick() },
                 onDoneClick = {
                     onDoneClick()
-                    //TODO Alarm 추가
                 }
             )
         }
@@ -105,8 +103,8 @@ private fun WheelTimerPickerView(
             size = DpSize(400.dp, 300.dp),
             textStyle = MaterialTheme.typography.displayLarge,
             startTime = LocalTime.now(),
-        ) {
-            Toast.makeText(context, it.toString(), Toast.LENGTH_SHORT).show()
+        ) { localTime ->
+            Toast.makeText(context, localTime.toString(), Toast.LENGTH_SHORT).show()
         }
     }
     Divider(color = Color.Gray)
@@ -207,7 +205,6 @@ private fun SoundSliderUI(
  */
 @Composable
 private fun SoundByWeatherView() {
-
     val dummySound =
         mapOf("맑음" to "맑음 노래제목", "비" to "비 노래제목", "눈" to "눈 노래제목")
     dummySound.forEach { (weather, song) ->
@@ -282,6 +279,7 @@ private fun BottomButtons(
                 alarmHandler.setAlarm(
                 )
                 */
+
             }
         ) {
             Text(
