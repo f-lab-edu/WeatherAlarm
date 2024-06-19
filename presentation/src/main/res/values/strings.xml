@@ -3,4 +3,5 @@
     <string name="cancel">취소</string>
     <string name="save">저장</string>
     <string name="alarm">알람</string>
+    <string name="close">close</string>
 </resources>

@@ -16,14 +16,21 @@ import java.util.Calendar
 
 class AlarmHandler(private val context: Context) {
 
-    private val alarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
-    private val alarmIntent = Intent(context, AlarmReceiver::class.java)
+    private val alarmManager: AlarmManager by lazy {
+        context.getSystemService(ALARM_SERVICE) as AlarmManager
+    }
+
+    private val alarmIntent: Intent by lazy {
+        Intent(context, AlarmReceiver::class.java)
+    }
 
     fun setAlarm(
         setDays: List<Int>,
         hour: Int,
         minute: Int,
     ) {
+
+
 
         val requestCode = "${hour}${minute}".toInt()
         val pendingIntent =
@@ -53,6 +60,7 @@ class AlarmHandler(private val context: Context) {
         hour: Int,
         minute: Int,
     ) {
+
         val requestCode = "${hour}${minute}".toInt()
         val pendingIntent =
             PendingIntent.getBroadcast(context, requestCode, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT)

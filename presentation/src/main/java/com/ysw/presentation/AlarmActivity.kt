@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -44,7 +43,9 @@ class AlarmActivity : ComponentActivity() {
         activityOn(this)
         setContent {
             MyApplicationTheme {
-                AlarmScreen()
+                AlarmScreen(closeAction = {
+                    this@AlarmActivity.finish()
+                })
             }
         }
         /*
@@ -70,7 +71,7 @@ class AlarmActivity : ComponentActivity() {
  */
 @Composable
 fun AlarmScreen(
-
+    closeAction: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -96,9 +97,9 @@ fun AlarmScreen(
             modifier = Modifier
                 .width(200.dp),
             onClick = {
-                AlarmActivity().finish()
+                closeAction()
             }) {
-            Text(text = "Close")
+            Text(text = stringResource(R.string.close))
         }
     }
 }
@@ -107,7 +108,9 @@ fun AlarmScreen(
 @Composable
 fun DefaultPreview() {
     MyApplicationTheme {
-        AlarmScreen()
+        AlarmScreen(closeAction = {
+
+        })
     }
 }
 
