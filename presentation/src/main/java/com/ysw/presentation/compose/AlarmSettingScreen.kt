@@ -1,6 +1,14 @@
 package com.ysw.presentation.compose
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,12 +32,11 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,9 +44,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
 import com.ysw.presentation.R
+import com.ysw.presentation.utilities.findActivity
+import com.ysw.presentation.utilities.getFileName
 import java.time.LocalTime
 
 /**
@@ -49,10 +59,11 @@ import java.time.LocalTime
  */
 @Composable
 fun AlarmSettingScreen(
-    onDoneClick: () -> Unit
+    onDoneClick: () -> Unit,
+    alarmViewModel: AlarmViewModel = viewModel()
 ) {
 
-    val viewModel = AlarmViewModel()
+    val alarmUiState by alarmViewModel.uiState.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -77,10 +88,27 @@ fun AlarmSettingScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                WheelTimerPickerView()
-                DayChipUI()
-                SoundSliderUI()
-                SoundByWeatherView()
+                WheelTimerPickerView(
+                    //시간 추출
+                    getAlarmTime = { alarmViewModel.getAlarmTime(it) }
+                )
+                DayChipUI(
+                    selectedList = alarmUiState.alarmList,
+                    updateSelectedList = { alarmViewModel.updateWeekDays(it) }
+                )
+                SoundSliderUI(
+                    volume = alarmUiState.volume,
+                    getVolume = { alarmViewModel.getAlarmVolume(it) }
+                    //사운드 크기 추출
+                )
+                SoundByWeatherView(
+                    alarmMusic = alarmUiState.musicListByWeather,
+                    getAlarmMusic = { weather, uri ->
+                        alarmViewModel.setAlarmMusic(weather, uri)
+                    }
+                )
+                //uri 추출
+
             }
         }
     }
@@ -92,10 +120,8 @@ fun AlarmSettingScreen(
  */
 @Composable
 private fun WheelTimerPickerView(
-
+    getAlarmTime: (LocalTime) -> Unit
 ) {
-    val context = LocalContext.current
-
     Box() {
         WheelTimePicker(
             modifier = Modifier.padding(16.dp),
@@ -104,8 +130,37 @@ private fun WheelTimerPickerView(
             textStyle = MaterialTheme.typography.displayLarge,
             startTime = LocalTime.now(),
         ) { localTime ->
-            Toast.makeText(context, localTime.toString(), Toast.LENGTH_SHORT).show()
+            getAlarmTime(localTime)
         }
+    }
+    Divider(color = Color.Gray)
+}
+
+
+/**
+ * 알람이 울릴 날짜를 선택하는 UI
+ *
+ */
+@Composable
+private fun DayChipUI(
+    selectedList: List<String>,
+    updateSelectedList: (String) -> Unit
+) {
+
+    val dayList = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        UIDayChipUsingFlowRow(
+            list = dayList,
+            selectedList = selectedList,
+            onOptionSelected = {
+                updateSelectedList(it)
+            }
+        )
     }
     Divider(color = Color.Gray)
 }
@@ -123,51 +178,22 @@ private fun WheelTimerPickerView(
 @Composable
 private fun UIDayChipUsingFlowRow(
     list: List<String>,
-    selectedList: SnapshotStateList<String>,
+    selectedList: List<String>,
     onOptionSelected: (String) -> Unit
 ) {
     FlowRow(
     ) {
-        list.forEach {
+        list.forEach { week ->
             FilterChip(
                 modifier = Modifier.padding(1.dp),
-                selected = it in selectedList,
-                onClick = { onOptionSelected(it) },
+                selected = week in selectedList,
+                onClick = { onOptionSelected(week) },
                 label = {
-                    Text(it, style = MaterialTheme.typography.bodySmall)
+                    Text(week, style = MaterialTheme.typography.bodySmall)
                 }
             )
         }
     }
-
-}
-
-/**
- * 알람이 울릴 날짜를 선택하는 UI
- *
- */
-@Composable
-private fun DayChipUI(
-
-) {
-    val dummyList = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-    var selectedList = remember {
-        mutableStateListOf<String>()
-    }
-    Box(
-        modifier = Modifier
-            .fillMaxWidth(),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        UIDayChipUsingFlowRow(list = dummyList, selectedList = selectedList) {
-            if (it in selectedList) {
-                selectedList.remove(it)
-            } else {
-                selectedList.add(it)
-            }
-        }
-    }
-    Divider(color = Color.Gray)
 }
 
 /**
@@ -176,9 +202,9 @@ private fun DayChipUI(
  */
 @Composable
 private fun SoundSliderUI(
-
+    volume: Float,
+    getVolume: (Float) -> Unit
 ) {
-    var sliderPosition by remember { mutableFloatStateOf(0f) }
 
     Box(
         modifier = Modifier
@@ -192,8 +218,10 @@ private fun SoundSliderUI(
             Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null)
             Slider(
                 modifier = Modifier.padding(8.dp),
-                value = sliderPosition,
-                onValueChange = { sliderPosition = it })
+                value = volume,
+                onValueChange = { getVolume(it) },
+                steps = 10
+            )
         }
     }
     Divider(color = Color.Gray)
@@ -204,12 +232,24 @@ private fun SoundSliderUI(
  *
  */
 @Composable
-private fun SoundByWeatherView() {
-    val dummySound =
-        mapOf("맑음" to "맑음 노래제목", "비" to "비 노래제목", "눈" to "눈 노래제목")
-    dummySound.forEach { (weather, song) ->
-        SetSoundByWeather(weather, song)
+private fun SoundByWeatherView(
+    alarmMusic: Map<String, Uri>,
+    getAlarmMusic: (String,Uri) -> Unit
+) {
+
+    val context = LocalContext.current
+    val weatherList = listOf("맑음", "비", "눈")
+
+    weatherList.forEach { weather ->
+        val uri = alarmMusic[weather] ?: Uri.EMPTY
+        SetSoundByWeather(
+            weather = weather,
+            song = getFileName(uri = uri, context = context)
+        ) {
+            getAlarmMusic(weather, it)
+        }
     }
+
 }
 
 /**
@@ -222,23 +262,83 @@ private fun SoundByWeatherView() {
 private fun SetSoundByWeather(
     weather: String,
     song: String,
+    getSongUri: (Uri) -> Unit
 ) {
+
+    val context = LocalContext.current
+    var songName by remember { mutableStateOf(song) }
+    var showPermissionDialog by remember { mutableStateOf(false) }
+
+    val selectAudioLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    getSongUri(uri)
+                    songName = getFileName(uri = uri, context = context)
+                }
+            }
+        }
+    )
+
+
+    val storagePermissionResultLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                getMusicFromStorage{
+                    selectAudioLauncher.launch(it)
+                }
+            } else {
+                showPermissionDialog = true
+            }
+        }
+    )
+
+    if (showPermissionDialog) {
+        PermissionDialog(StoragePermissionTextProvider(context),
+            isPermanentlyDeclined = context.findActivity()
+                .shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .not(),
+            onDismiss = { showPermissionDialog = false },
+            onOkClick = {
+                storagePermissionResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                showPermissionDialog = false
+            },
+            onGoToAppSettingsClick = {
+                openAppSettings(context)
+                showPermissionDialog = false
+            }
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                // TODO 음악파일을 가져오는 코드 , 노래제목 변경
+                storagePermissionResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             },
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
         ) {
             Text(text = weather)
-            Text(text = song)
+            Text(text = songName)
         }
     }
     Divider(color = Color.Gray)
 }
+
+fun getMusicFromStorage(
+    launcher: (Intent) -> Unit
+) {
+    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+        type = "audio/*"
+        addCategory(Intent.CATEGORY_OPENABLE)
+    }
+    launcher(Intent.createChooser(intent, "Select Audio"))
+}
+
 
 /**
  * 하단 취소, 저장 버튼
@@ -254,6 +354,39 @@ private fun BottomButtons(
     onDoneClick: () -> Unit
 ) {
 
+    val context = LocalContext.current
+
+    var showPermissionDialog by remember { mutableStateOf(false) }
+
+    val gpsPermissionResultLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                Toast
+                    .makeText(context, "Permission granted", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            showPermissionDialog = !isGranted
+        }
+    )
+
+    if (showPermissionDialog) {
+        PermissionDialog(GPSPermissionTextProvider(context),
+            isPermanentlyDeclined = !context.findActivity()
+                .shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION),
+            onDismiss = { showPermissionDialog = false },
+            onOkClick = {
+                gpsPermissionResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                showPermissionDialog = false
+            },
+            onGoToAppSettingsClick = {
+                openAppSettings(context)
+                showPermissionDialog = false
+            }
+        )
+    }
+
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -262,11 +395,11 @@ private fun BottomButtons(
     ) {
         TextButton(
             onClick = {
-                onCancelClick
+                onCancelClick()
             }
         ) {
             Text(
-                text = stringResource(id = R.string.save),
+                text = stringResource(id = R.string.cancel),
                 color = Color.Black,
                 style = MaterialTheme.typography.headlineMedium
             )
@@ -274,12 +407,10 @@ private fun BottomButtons(
 
         TextButton(
             onClick = {
-                onDoneClick
-                /*
-                alarmHandler.setAlarm(
-                )
-                */
-
+                gpsPermissionResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                /**
+                 * Room에 저장, AlarmManager 등록
+                 */
             }
         ) {
             Text(
@@ -290,3 +421,13 @@ private fun BottomButtons(
         }
     }
 }
+
+
+private fun openAppSettings(context: Context) {
+    val intent = Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", context.packageName, null)
+    )
+    context.startActivity(intent)
+}
+
