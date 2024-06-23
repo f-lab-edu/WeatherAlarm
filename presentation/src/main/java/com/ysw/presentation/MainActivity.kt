@@ -45,7 +45,7 @@ fun AppNavHost(
             AlarmListScreen(navController = navController)
         }
         composable(route = ALARM_SETTING_SCREEN_ROUTE) {
-            AlarmSettingScreen(navController = navController)
+            AlarmSettingScreen{navController.navigateUp()}
         }
     }
 }
