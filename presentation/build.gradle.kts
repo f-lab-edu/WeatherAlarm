@@ -77,6 +77,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     //compose-permission
     implementation ("com.google.accompanist:accompanist-permissions:0.29.0-alpha")
+    //Hilt ViewModel
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
 
 
