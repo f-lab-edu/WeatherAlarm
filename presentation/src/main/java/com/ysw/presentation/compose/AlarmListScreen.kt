@@ -1,4 +1,4 @@
-package com.ysw.presentation.ui
+package com.ysw.presentation.compose
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +28,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+
 
 /**
  * Alarm list screen
@@ -36,7 +39,9 @@ import androidx.navigation.NavController
  */
 @Composable
 fun AlarmListScreen(
-    navController: NavController
+    navController: NavController,
+    alarmUiState: AlarmUiState,
+    setAlarmOn : (Boolean) -> Unit
 ) {
 
     val dummyList: List<DummyDataClass> = listOf(
@@ -81,7 +86,9 @@ fun AlarmListScreen(
         AlarmListColumn(
             alarmData = dummyList,
             paddingValues = innerPadding,
-            navController = navController
+            onAlarmItemClick = {navController.navigate("AlarmSettingScreen")},
+            isOn = alarmUiState.isOn,
+            changeAlarmOn = { setAlarmOn(it) }
         )
     }
 
@@ -98,7 +105,9 @@ fun AlarmListScreen(
 private fun AlarmListColumn(
     alarmData: List<DummyDataClass> = emptyList(),
     paddingValues: PaddingValues = PaddingValues(),
-    navController: NavController
+    onAlarmItemClick: () -> Unit,
+    isOn: Boolean,
+    changeAlarmOn: (Boolean) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -107,8 +116,12 @@ private fun AlarmListColumn(
         contentPadding = PaddingValues(16.dp),
     ) {
         items(alarmData) { alarm ->
-            AlarmItem(item = alarm) {
-                navController.navigate("AlarmSettingScreen")
+            AlarmItem(
+                item = alarm,
+                isOn = isOn,
+                changeAlarmOn = { changeAlarmOn(it) }
+            ) {
+                onAlarmItemClick()
             }
         }
     }
@@ -124,6 +137,8 @@ private fun AlarmListColumn(
 @Composable
 private fun AlarmItem(
     item: DummyDataClass,
+    isOn: Boolean,
+    changeAlarmOn: (Boolean) -> Unit,
     onClick: () -> Unit = {}
 ) {
     var checked by remember { mutableStateOf(item.isOn) }
@@ -145,8 +160,8 @@ private fun AlarmItem(
             Text(text = "${item.hour}:${item.minute}", fontSize = 30.sp)
             Spacer(modifier = Modifier.weight(1f))
             Text(text = item.activeDays, fontSize = 10.sp)
-            Switch(checked = checked, onCheckedChange = {
-                checked = it
+            Switch(checked = isOn, onCheckedChange = {
+                changeAlarmOn(it)
                 // TODO : 알람을 끈 상태로 변경하는 로직
             })
         }
