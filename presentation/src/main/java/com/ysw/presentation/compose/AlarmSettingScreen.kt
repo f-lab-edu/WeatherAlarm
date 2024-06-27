@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,8 +49,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
 import com.ysw.presentation.R
+import com.ysw.presentation.alarm.AlarmHandler
 import com.ysw.presentation.utilities.findActivity
 import com.ysw.presentation.utilities.getFileName
+import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalTime
 
 /**
@@ -57,13 +60,18 @@ import java.time.LocalTime
  *
  * @param navController
  */
+
 @Composable
 fun AlarmSettingScreen(
     onDoneClick: () -> Unit,
-    alarmViewModel: AlarmViewModel = viewModel()
+    alarmUiState: AlarmUiState,
+    getAlarmTime: (LocalTime) -> Unit,
+    updateWeekDay: (String) -> Unit,
+    getAlarmVolume: (Float) -> Unit,
+    setAlarmMusic: (String,Uri) -> Unit
+
 ) {
 
-    val alarmUiState by alarmViewModel.uiState.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -90,21 +98,21 @@ fun AlarmSettingScreen(
             ) {
                 WheelTimerPickerView(
                     //시간 추출
-                    getAlarmTime = { alarmViewModel.getAlarmTime(it) }
+                    getAlarmTime = { getAlarmTime(it) }
                 )
                 DayChipUI(
                     selectedList = alarmUiState.alarmList,
-                    updateSelectedList = { alarmViewModel.updateWeekDays(it) }
+                    updateSelectedList = { updateWeekDay(it) }
                 )
                 SoundSliderUI(
                     volume = alarmUiState.volume,
-                    getVolume = { alarmViewModel.getAlarmVolume(it) }
+                    getVolume = { getAlarmVolume(it) }
                     //사운드 크기 추출
                 )
                 SoundByWeatherView(
                     alarmMusic = alarmUiState.musicListByWeather,
                     getAlarmMusic = { weather, uri ->
-                        alarmViewModel.setAlarmMusic(weather, uri)
+                        setAlarmMusic(weather, uri)
                     }
                 )
                 //uri 추출
@@ -408,6 +416,7 @@ private fun BottomButtons(
         TextButton(
             onClick = {
                 gpsPermissionResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                AlarmHandler().setContext(context)
                 /**
                  * Room에 저장, AlarmManager 등록
                  */

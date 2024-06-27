@@ -40,10 +40,9 @@ import androidx.navigation.NavController
 @Composable
 fun AlarmListScreen(
     navController: NavController,
-    alarmViewModel: AlarmViewModel = viewModel()
+    alarmUiState: AlarmUiState,
+    setAlarmOn : (Boolean) -> Unit
 ) {
-
-    val alarmUiState by alarmViewModel.uiState.collectAsState()
 
     val dummyList: List<DummyDataClass> = listOf(
         DummyDataClass(
@@ -87,9 +86,9 @@ fun AlarmListScreen(
         AlarmListColumn(
             alarmData = dummyList,
             paddingValues = innerPadding,
-            navController = navController,
+            onAlarmItemClick = {navController.navigate("AlarmSettingScreen")},
             isOn = alarmUiState.isOn,
-            changeAlarmOn = { alarmViewModel.setAlarmOn(it) }
+            changeAlarmOn = { setAlarmOn(it) }
         )
     }
 
@@ -106,7 +105,7 @@ fun AlarmListScreen(
 private fun AlarmListColumn(
     alarmData: List<DummyDataClass> = emptyList(),
     paddingValues: PaddingValues = PaddingValues(),
-    navController: NavController,
+    onAlarmItemClick: () -> Unit,
     isOn: Boolean,
     changeAlarmOn: (Boolean) -> Unit
 ) {
@@ -122,7 +121,7 @@ private fun AlarmListColumn(
                 isOn = isOn,
                 changeAlarmOn = { changeAlarmOn(it) }
             ) {
-                navController.navigate("AlarmSettingScreen")
+                onAlarmItemClick()
             }
         }
     }
