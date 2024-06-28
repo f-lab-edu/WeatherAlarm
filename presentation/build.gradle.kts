@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
-    id("org.jetbrains.kotlin.kapt")
+    id("kotlin-kapt")
     id("com.google.dagger.hilt.android") version "2.48"
 
 
