@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
@@ -45,9 +46,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
+import com.google.accompanist.permissions.rememberPermissionState
 import com.ysw.presentation.R
 import com.ysw.presentation.alarm.AlarmHandler
 import com.ysw.presentation.utilities.findActivity
@@ -68,7 +71,7 @@ fun AlarmSettingScreen(
     getAlarmTime: (LocalTime) -> Unit,
     updateWeekDay: (String) -> Unit,
     getAlarmVolume: (Float) -> Unit,
-    setAlarmMusic: (String,Uri) -> Unit
+    setAlarmMusic: (String, Uri) -> Unit
 
 ) {
 
@@ -79,7 +82,8 @@ fun AlarmSettingScreen(
                 onCancelClick = { onDoneClick() },
                 onDoneClick = {
                     onDoneClick()
-                }
+                },
+                state = alarmUiState
             )
         }
     ) { contentPadding ->
@@ -242,7 +246,7 @@ private fun SoundSliderUI(
 @Composable
 private fun SoundByWeatherView(
     alarmMusic: Map<String, Uri>,
-    getAlarmMusic: (String,Uri) -> Unit
+    getAlarmMusic: (String, Uri) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -294,7 +298,7 @@ private fun SetSoundByWeather(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                getMusicFromStorage{
+                getMusicFromStorage {
                     selectAudioLauncher.launch(it)
                 }
             } else {
@@ -358,38 +362,37 @@ fun getMusicFromStorage(
 @Composable
 private fun BottomButtons(
     modifier: Modifier = Modifier,
+    state: AlarmUiState,
     onCancelClick: () -> Unit,
     onDoneClick: () -> Unit
 ) {
 
     val context = LocalContext.current
 
-    var showPermissionDialog by remember { mutableStateOf(false) }
+    var isShowPermissionDialog by remember { mutableStateOf(false) }
 
     val gpsPermissionResultLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                Toast
-                    .makeText(context, "Permission granted", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
             }
-            showPermissionDialog = !isGranted
+            isShowPermissionDialog = !isGranted
         }
     )
 
-    if (showPermissionDialog) {
+    if (isShowPermissionDialog) {
         PermissionDialog(GPSPermissionTextProvider(context),
             isPermanentlyDeclined = !context.findActivity()
                 .shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION),
-            onDismiss = { showPermissionDialog = false },
+            onDismiss = { isShowPermissionDialog = false },
             onOkClick = {
                 gpsPermissionResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                showPermissionDialog = false
+                isShowPermissionDialog = false
             },
             onGoToAppSettingsClick = {
                 openAppSettings(context)
-                showPermissionDialog = false
+                isShowPermissionDialog = false
             }
         )
     }
@@ -415,11 +418,19 @@ private fun BottomButtons(
 
         TextButton(
             onClick = {
-                gpsPermissionResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                AlarmHandler().setContext(context)
-                /**
-                 * Room에 저장, AlarmManager 등록
-                 */
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ){
+                    Toast.makeText(context, state.time.toString(), Toast.LENGTH_SHORT).show()
+                    /**
+                     * Room에 저장, AlarmManager 등록
+                     */
+                } else {
+                    gpsPermissionResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
+
             }
         ) {
             Text(
