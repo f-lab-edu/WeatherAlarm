@@ -113,7 +113,7 @@ fun AlarmScreen(
             onClick = {
                 closeAction()
             }) {
-            Text(text = "Close")
+            Text(text = stringResource(R.string.close))
         }
     }
 }
@@ -122,7 +122,6 @@ fun AlarmScreen(
 @Composable
 fun DefaultPreview() {
     MyApplicationTheme {
-
     }
 }
 
