@@ -11,5 +11,5 @@ interface AlarmRepository {
     suspend fun getAlarm(time: LocalTime): Alarm
     suspend fun insertAlarm(alarm: Alarm)
     suspend fun deleteAlarm(time: LocalTime)
-    suspend fun turnOffAlarm(isOn: Boolean, time: LocalTime)
+    suspend fun onOffAlarm(isOn: Boolean, time: LocalTime)
 }

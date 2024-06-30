@@ -43,9 +43,9 @@ class AlarmRepositoryImpl @Inject constructor (
         }
     }
 
-    override suspend fun turnOffAlarm(isOn: Boolean, time: LocalTime) {
+    override suspend fun onOffAlarm(isOn: Boolean, time: LocalTime) {
         return withContext(ioDispatcher) {
-            localDatasource.turnOffAlarm(isOn, time)
+            localDatasource.onOffAlarm(isOn, time)
         }
     }
 }

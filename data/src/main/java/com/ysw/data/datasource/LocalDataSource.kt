@@ -11,5 +11,5 @@ class LocalAlarmDataSource @Inject constructor (private val alarmDao: AlarmDao) 
     suspend fun getAlarm(time: LocalTime): AlarmEntity = alarmDao.getAlarm(time)
     suspend fun insertAlarm(alarm: AlarmEntity) = alarmDao.insertAlarm(alarm)
     suspend fun deleteAlarm(time: LocalTime) = alarmDao.deleteAlarm(time)
-    suspend fun turnOffAlarm(isOn: Boolean, time: LocalTime) = alarmDao.turnOffAlarm(isOn, time)
+    suspend fun onOffAlarm(isOn: Boolean, time: LocalTime) = alarmDao.onOffAlarm(isOn, time)
 }

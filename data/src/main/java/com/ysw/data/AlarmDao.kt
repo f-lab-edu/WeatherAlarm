@@ -30,6 +30,6 @@ interface AlarmDao {
     suspend fun deleteAlarm(time: LocalTime)
 
     @Query("UPDATE alarm SET isOn = :isOn WHERE time = :time")
-    suspend fun turnOffAlarm(isOn: Boolean, time: LocalTime)
+    suspend fun onOffAlarm(isOn: Boolean, time: LocalTime)
 
 }
