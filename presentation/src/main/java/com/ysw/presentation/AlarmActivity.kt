@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,32 +21,43 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.ysw.presentation.compose.AlarmUiState
+import com.ysw.presentation.compose.AlarmViewModel
 import com.ysw.presentation.ui.theme.MyApplicationTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Alarm activity
  * 알람 동작시 보여질 화면
  *
  */
+@AndroidEntryPoint
 class AlarmActivity : ComponentActivity() {
 
-    //private val alarmViewModel: AlarmViewModel by viewModels()
+
     private var music: MediaPlayer? = null
 
     @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityOn(this)
+        activityOn()
         setContent {
             MyApplicationTheme {
-                AlarmScreen(closeAction = {
-                    this@AlarmActivity.finish()
-                })
+                val viewModel: AlarmViewModel = hiltViewModel<AlarmViewModel>()
+                val uiState by viewModel.uiState.collectAsState()
+                AlarmScreen(
+                    closeAction = {this@AlarmActivity.finish()},
+                    state = uiState
+                )
             }
         }
         /*
@@ -71,8 +83,11 @@ class AlarmActivity : ComponentActivity() {
  */
 @Composable
 fun AlarmScreen(
-    closeAction: () -> Unit
+    closeAction: () -> Unit,
+    state : AlarmUiState,
+
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -87,7 +102,7 @@ fun AlarmScreen(
         Spacer(modifier = Modifier.heightIn(50.dp))
 
         Text(
-            text = "02:22",
+            text = state.time.toString(),
             style = MaterialTheme.typography.displayLarge
         )
 
@@ -111,6 +126,7 @@ fun DefaultPreview() {
         AlarmScreen(closeAction = {
 
         })
+
     }
 }
 
@@ -120,14 +136,14 @@ fun DefaultPreview() {
  *
  * @param activity
  */
-private fun activityOn(activity: Activity) {
+private fun Activity.activityOn() {
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-        activity.setTurnScreenOn(true)
-        activity.setShowWhenLocked(true)
-        val keyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        keyguardManager.requestDismissKeyguard(activity, null)
+        setTurnScreenOn(true)
+        setShowWhenLocked(true)
+        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        keyguardManager.requestDismissKeyguard(this, null)
     } else {
-        activity.window.addFlags(
+        window.addFlags(
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                     or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                     or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
@@ -146,7 +162,7 @@ private fun playMusicByWeather(
     weather: String,
     music: MediaPlayer?
 ) {
-    music?.setDataSource("music.mp3")
+    music?.setDataSource("music.mp3 uri")
     music?.prepare()
     music?.start()
 }

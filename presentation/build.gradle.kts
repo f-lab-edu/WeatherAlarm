@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-    kotlin("kapt")
 
 }
 
@@ -73,6 +73,13 @@ dependencies {
     implementation("com.github.commandiron:WheelPickerCompose:1.1.11")
     //Extends Material3
     implementation ("androidx.compose.material:material-icons-extended:1.7.0-beta02")
+    //compose-viewmodel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    //compose-permission
+    implementation ("com.google.accompanist:accompanist-permissions:0.29.0-alpha")
+    //Hilt ViewModel
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
 
 
 }
