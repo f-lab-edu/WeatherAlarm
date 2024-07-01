@@ -85,6 +85,7 @@ class AlarmActivity : ComponentActivity() {
 fun AlarmScreen(
     closeAction: () -> Unit,
     state : AlarmUiState,
+
 ) {
     val context = LocalContext.current
     Column(
@@ -113,7 +114,7 @@ fun AlarmScreen(
             onClick = {
                 closeAction()
             }) {
-            Text(text = "Close")
+            Text(text = stringResource(R.string.close))
         }
     }
 }
@@ -122,6 +123,9 @@ fun AlarmScreen(
 @Composable
 fun DefaultPreview() {
     MyApplicationTheme {
+        AlarmScreen(closeAction = {
+
+        })
 
     }
 }
