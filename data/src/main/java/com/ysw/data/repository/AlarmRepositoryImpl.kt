@@ -9,43 +9,51 @@ import com.ysw.domain.Alarm
 import com.ysw.domain.repository.AlarmRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.LocalTime
 import javax.inject.Inject
 
-class AlarmRepositoryImpl @Inject constructor (
+class AlarmRepositoryImpl @Inject constructor(
     private val localDatasource: LocalAlarmDataSource,
     @Dispatcher(AlarmAppDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : AlarmRepository {
-    override fun getAllAlarm(): Flow<List<Alarm>> {
-        return localDatasource.getAllAlarms().map { alarmEntityList ->
-            alarmEntityList.map { alarmEntity -> alarmEntity.asDomain() }
-        }.flowOn(ioDispatcher)
-    }
+
+    override fun getAllAlarms(): Flow<List<Alarm>> = flow {
+        localDatasource.getAllAlarms().collect {
+            emit(it.asDomain())
+        }
+    }.flowOn(ioDispatcher)
+
 
     override suspend fun getAlarm(time: LocalTime): Alarm {
-        return withContext(ioDispatcher) {
+        return runWithDispatcher {
             localDatasource.getAlarm(time).asDomain()
         }
     }
 
     override suspend fun insertAlarm(alarm: Alarm) {
-        return withContext(ioDispatcher) {
+        return runWithDispatcher {
             localDatasource.insertAlarm(alarm.asEntity())
         }
     }
 
     override suspend fun deleteAlarm(time: LocalTime) {
-        return withContext(ioDispatcher) {
+        return runWithDispatcher {
             localDatasource.deleteAlarm(time)
         }
     }
 
-    override suspend fun onOffAlarm(isOn: Boolean, time: LocalTime) {
+    override suspend fun setOnOffAlarm(isOn: Boolean, time: LocalTime) {
+        return runWithDispatcher {
+            localDatasource.setOnOffAlarm(isOn, time)
+        }
+    }
+
+    private suspend fun <T> runWithDispatcher(runFunction: suspend () -> T): T {
         return withContext(ioDispatcher) {
-            localDatasource.onOffAlarm(isOn, time)
+            runFunction()
         }
     }
 }
