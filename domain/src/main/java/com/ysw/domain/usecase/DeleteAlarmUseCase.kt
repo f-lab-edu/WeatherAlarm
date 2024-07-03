@@ -6,7 +6,6 @@ import javax.inject.Inject
 
 
 class DeleteAlarmUseCase @Inject constructor (private val alarmRepository: AlarmRepository) {
-    suspend operator fun invoke(time: LocalTime) {
-        alarmRepository.deleteAlarm(time)
-    }
+    suspend operator fun invoke(time: LocalTime)  = alarmRepository.deleteAlarm(time)
+
 }
