@@ -15,4 +15,5 @@
     <string name="requestPermissionMassageForGPS">
          현재 위치 기반 날씨를 알기 위해 이 권한이 필요합니다.
     </string>
+    <string name="close">close</string>
 </resources>
