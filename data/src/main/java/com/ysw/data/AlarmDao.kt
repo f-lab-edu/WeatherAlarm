@@ -18,10 +18,10 @@ import java.time.LocalTime
 interface AlarmDao {
 
     @Query("SELECT * FROM alarm ORDER BY time ASC")
-    fun getAllAlarms() : Flow<List<AlarmEntity>>
+    fun getAllAlarms(): Flow<List<AlarmEntity>>
 
     @Query("SELECT * FROM alarm WHERE time = :time")
-    suspend fun getAlarm(time: LocalTime) : AlarmEntity
+    suspend fun getAlarm(time: LocalTime): AlarmEntity
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAlarm(alarm: AlarmEntity)
@@ -31,5 +31,8 @@ interface AlarmDao {
 
     @Query("UPDATE alarm SET isOn = :isOn WHERE time = :time")
     suspend fun setOnOffAlarm(isOn: Boolean, time: LocalTime)
+
+    @Query("SELECT count(time) FROM alarm WHERE time = :time")
+    suspend fun isAlarmExist(time: LocalTime) : Int
 
 }
