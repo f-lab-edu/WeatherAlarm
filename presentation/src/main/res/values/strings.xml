@@ -3,5 +3,17 @@
     <string name="cancel">취소</string>
     <string name="save">저장</string>
     <string name="alarm">알람</string>
+    <string name="agree">수락</string>
+    <string name="requestPermission">권한 요청</string>
+    <string name="settingPermission">권한 설정</string>
+    <string name="requestPermissionMassage">
+        앱 설정에서 권한을 허용해 주세요.
+    </string>
+    <string name="requestPermissionMassageForMusic">
+         음악을 저장 공간에서 가져오기 위해 이 권한이 필요합니다.
+    </string>
+    <string name="requestPermissionMassageForGPS">
+         현재 위치 기반 날씨를 알기 위해 이 권한이 필요합니다.
+    </string>
     <string name="close">close</string>
 </resources>

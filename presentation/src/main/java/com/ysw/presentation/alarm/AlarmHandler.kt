@@ -14,7 +14,13 @@ import java.util.Calendar
  * @param context
  */
 
-class AlarmHandler(private val context: Context) {
+class AlarmHandler() {
+
+    private lateinit var context: Context
+
+    fun setContext(context: Context) {
+        this.context = context
+    }
 
     private val alarmManager: AlarmManager by lazy {
         context.getSystemService(ALARM_SERVICE) as AlarmManager

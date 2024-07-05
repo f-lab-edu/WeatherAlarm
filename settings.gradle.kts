@@ -20,7 +20,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "My Application"
+rootProject.name = "WeatherAlarm"
 include(":app")
 include(":data")
 include(":presentation")
