@@ -19,12 +19,22 @@ internal fun getFileName(
     uri: Uri,
     context: Context
 ): String {
-    var name: String = ""
-    val cursor = context.contentResolver.query(uri, null, null, null, null)
-    cursor?.use { cursor ->
-        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        cursor.moveToFirst()
-        name = cursor.getString(nameIndex)
+
+    var fileName: String = ""
+
+    if (uri.scheme == "/android.resource") {
+        val resId = uri.lastPathSegment
+        resId?.let {
+            fileName = it
+        }
+    } else {
+        val cursor = context.contentResolver.query(uri, null, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val displayNameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                fileName = it.getString(displayNameIndex)
+            }
+        }
     }
-    return name
+    return fileName
 }
