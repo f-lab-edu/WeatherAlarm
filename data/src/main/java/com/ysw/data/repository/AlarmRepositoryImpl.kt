@@ -51,7 +51,7 @@ class AlarmRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun isAlarmExist(time: LocalTime) {
+    override suspend fun isAlarmExist(time: LocalTime): Int {
         return runWithDispatcher {
             localDatasource.isAlarmExist(time)
         }
