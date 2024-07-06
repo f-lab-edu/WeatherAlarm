@@ -5,6 +5,7 @@ import com.ysw.domain.Alarm
 
 
 object AlarmEntityMapper : EntityMapper<Alarm, AlarmEntity> {
+
     override fun asEntity(domain: Alarm): AlarmEntity {
         return AlarmEntity(
             time = domain.time,
@@ -26,10 +27,7 @@ object AlarmEntityMapper : EntityMapper<Alarm, AlarmEntity> {
     }
 }
 
-fun Alarm.asEntity() : AlarmEntity {
-    return AlarmEntityMapper.asEntity(this)
-}
 
-fun AlarmEntity.asDomain() : Alarm {
-    return AlarmEntityMapper.asDomain(this)
-}
+fun Alarm.asEntity() : AlarmEntity = AlarmEntityMapper.asEntity(this)
+
+fun AlarmEntity.asDomain() : Alarm = AlarmEntityMapper.asDomain(this)
