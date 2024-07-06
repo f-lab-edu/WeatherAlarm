@@ -10,7 +10,6 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,7 +33,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,15 +46,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
-import com.google.accompanist.permissions.rememberPermissionState
 import com.ysw.presentation.R
-import com.ysw.presentation.alarm.AlarmHandler
 import com.ysw.presentation.utilities.findActivity
 import com.ysw.presentation.utilities.getFileName
-import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalTime
 
 /**
@@ -66,14 +61,21 @@ import java.time.LocalTime
 
 @Composable
 fun AlarmSettingScreen(
+    argsTime: LocalTime?,
     onDoneClick: () -> Unit,
-    alarmUiState: AlarmUiState,
+    alarmUiState: AlarmSettingUi,
+    setAlarmUi: (LocalTime?) -> Unit,
     getAlarmTime: (LocalTime) -> Unit,
     updateWeekDay: (String) -> Unit,
     getAlarmVolume: (Float) -> Unit,
-    setAlarmMusic: (String, Uri) -> Unit
-
+    setAlarmMusic: (String, Uri) -> Unit,
+    saveAlarm: (LocalTime?) -> Unit
 ) {
+
+
+    LaunchedEffect(argsTime) {
+        setAlarmUi(argsTime)
+    }
 
 
     Scaffold(
@@ -81,6 +83,7 @@ fun AlarmSettingScreen(
             BottomButtons(
                 onCancelClick = { onDoneClick() },
                 onDoneClick = {
+                    saveAlarm(argsTime)
                     onDoneClick()
                 },
                 state = alarmUiState
@@ -101,7 +104,7 @@ fun AlarmSettingScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 WheelTimerPickerView(
-                    //시간 추출
+                    time = argsTime?:LocalTime.now(),
                     getAlarmTime = { getAlarmTime(it) }
                 )
                 DayChipUI(
@@ -111,7 +114,6 @@ fun AlarmSettingScreen(
                 SoundSliderUI(
                     volume = alarmUiState.volume,
                     getVolume = { getAlarmVolume(it) }
-                    //사운드 크기 추출
                 )
                 SoundByWeatherView(
                     alarmMusic = alarmUiState.musicListByWeather,
@@ -119,8 +121,6 @@ fun AlarmSettingScreen(
                         setAlarmMusic(weather, uri)
                     }
                 )
-                //uri 추출
-
             }
         }
     }
@@ -132,15 +132,17 @@ fun AlarmSettingScreen(
  */
 @Composable
 private fun WheelTimerPickerView(
+    time: LocalTime,
     getAlarmTime: (LocalTime) -> Unit
 ) {
+
     Box() {
         WheelTimePicker(
             modifier = Modifier.padding(16.dp),
             timeFormat = TimeFormat.AM_PM,
             size = DpSize(400.dp, 300.dp),
             textStyle = MaterialTheme.typography.displayLarge,
-            startTime = LocalTime.now(),
+            startTime = time,
         ) { localTime ->
             getAlarmTime(localTime)
         }
@@ -159,7 +161,7 @@ private fun DayChipUI(
     updateSelectedList: (String) -> Unit
 ) {
 
-    val dayList = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+    val dayList = Week.entries.map { it.day }
 
     Box(
         modifier = Modifier
@@ -250,10 +252,8 @@ private fun SoundByWeatherView(
 ) {
 
     val context = LocalContext.current
-    val weatherList = listOf("맑음", "비", "눈")
 
-    weatherList.forEach { weather ->
-        val uri = alarmMusic[weather] ?: Uri.EMPTY
+    alarmMusic.forEach { (weather, uri) ->
         SetSoundByWeather(
             weather = weather,
             song = getFileName(uri = uri, context = context)
@@ -275,6 +275,7 @@ private fun SetSoundByWeather(
     weather: String,
     song: String,
     getSongUri: (Uri) -> Unit
+
 ) {
 
     val context = LocalContext.current
@@ -344,7 +345,7 @@ private fun SetSoundByWeather(
 fun getMusicFromStorage(
     launcher: (Intent) -> Unit
 ) {
-    val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         type = "audio/*"
         addCategory(Intent.CATEGORY_OPENABLE)
     }
@@ -362,7 +363,7 @@ fun getMusicFromStorage(
 @Composable
 private fun BottomButtons(
     modifier: Modifier = Modifier,
-    state: AlarmUiState,
+    state: AlarmSettingUi,
     onCancelClick: () -> Unit,
     onDoneClick: () -> Unit
 ) {
@@ -422,11 +423,8 @@ private fun BottomButtons(
                         context,
                         Manifest.permission.ACCESS_FINE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
-                ){
-                    Toast.makeText(context, state.time.toString(), Toast.LENGTH_SHORT).show()
-                    /**
-                     * Room에 저장, AlarmManager 등록
-                     */
+                ) {
+                    onDoneClick()
                 } else {
                     gpsPermissionResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
