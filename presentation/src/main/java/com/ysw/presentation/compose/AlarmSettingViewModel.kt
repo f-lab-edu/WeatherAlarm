@@ -2,17 +2,17 @@ package com.ysw.presentation.compose
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.ysw.domain.Alarm
 import com.ysw.domain.usecase.DeleteAlarmUseCase
 import com.ysw.domain.usecase.GetAlarmUseCase
 import com.ysw.domain.usecase.InsertAlarmUseCase
 import com.ysw.domain.usecase.IsAlarmExistUseCase
+import com.ysw.domain.usecase.UpdateAlarmUseCase
+import com.ysw.presentation.utilities.launchInScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.time.LocalTime
 import javax.inject.Inject
 
@@ -22,6 +22,7 @@ class AlarmSettingViewModel @Inject constructor(
     private val getAlarmUseCase: GetAlarmUseCase,
     private val insertAlarmUseCase: InsertAlarmUseCase,
     private val isAlarmExistUseCase: IsAlarmExistUseCase,
+    private val updateAlarmUseCase: UpdateAlarmUseCase,
     private val deleteAlarmUseCase: DeleteAlarmUseCase
 ) : ViewModel() {
 
@@ -62,8 +63,8 @@ class AlarmSettingViewModel @Inject constructor(
     }
 
 
-    fun setAlarmUi(time: LocalTime?) {
-        if (time == null) {
+    fun setAlarmUi(id: Int?) {
+        if (id == null) {
             val defaultMusicMap: MutableMap<String, Uri> = mutableMapOf()
             WeatherCondition.entries.forEach { weather ->
                 when (weather.description) {
@@ -89,10 +90,11 @@ class AlarmSettingViewModel @Inject constructor(
                 )
             }
         } else {
-            viewModelScope.launch {
-                getAlarmUseCase.invoke(time).let {
+            launchInScope {
+                getAlarmUseCase.invoke(id).let {
                     updateUiState { currentState ->
                         currentState.copy(
+                            id = it.id,
                             time = it.time,
                             alarmList = it.alarmDayList,
                             volume = it.volume,
@@ -106,20 +108,45 @@ class AlarmSettingViewModel @Inject constructor(
     }
 
 
-    fun saveAlarm(oldTime: LocalTime?) {
-        viewModelScope.launch {
-            if (oldTime != null && isAlarmExistUseCase(oldTime) > 0) {
-                deleteAlarmUseCase(oldTime)
-            }
-            insertAlarmUseCase.invoke(
-                Alarm(
-                    time = _uiState.value.time,
-                    alarmDayList = _uiState.value.alarmList,
-                    volume = _uiState.value.volume,
-                    isOn = _uiState.value.isOn,
-                    musicListByWeather = _uiState.value.musicListByWeather
+    fun saveAlarm(id: Int?) {
+        launchInScope {
+
+            if (id != null) {
+                updateAlarmUseCase.invoke(
+                    Alarm(
+                        id = id,
+                        time = _uiState.value.time,
+                        alarmDayList = _uiState.value.alarmList,
+                        volume = _uiState.value.volume,
+                        isOn = _uiState.value.isOn,
+                        musicListByWeather = _uiState.value.musicListByWeather
+                    )
                 )
-            )
+            } else {
+                insertAlarmUseCase.invoke(
+                    Alarm(
+                        time = _uiState.value.time,
+                        alarmDayList = _uiState.value.alarmList,
+                        volume = _uiState.value.volume,
+                        isOn = _uiState.value.isOn,
+                        musicListByWeather = _uiState.value.musicListByWeather
+                    )
+                )
+            }
+        }
+        deleteSameAlarm()
+    }
+
+    private fun deleteSameAlarm() {
+        launchInScope {
+            val existingAlarms = isAlarmExistUseCase.invoke(_uiState.value.time)
+            if (existingAlarms.isNotEmpty()) {
+                existingAlarms.filter { alarm ->
+                    alarm.alarmDayList == _uiState.value.alarmList
+                }.map {
+                    deleteAlarmUseCase.invoke(it.id)
+                }
+            }
         }
     }
 
