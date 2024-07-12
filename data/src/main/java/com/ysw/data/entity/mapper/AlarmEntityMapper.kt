@@ -8,6 +8,7 @@ object AlarmEntityMapper : EntityMapper<Alarm, AlarmEntity> {
 
     override fun asEntity(domain: Alarm): AlarmEntity {
         return AlarmEntity(
+            id = domain.id,
             time = domain.time,
             alarmDayList = domain.alarmDayList,
             volume = domain.volume,
@@ -18,6 +19,7 @@ object AlarmEntityMapper : EntityMapper<Alarm, AlarmEntity> {
 
     override fun asDomain(entity: AlarmEntity): Alarm {
         return Alarm(
+            id = entity.id,
             time = entity.time,
             alarmDayList = entity.alarmDayList,
             volume = entity.volume,
@@ -28,6 +30,6 @@ object AlarmEntityMapper : EntityMapper<Alarm, AlarmEntity> {
 }
 
 
-fun Alarm.asEntity() : AlarmEntity = AlarmEntityMapper.asEntity(this)
+fun Alarm.asEntity(): AlarmEntity = AlarmEntityMapper.asEntity(this)
 
-fun AlarmEntity.asDomain() : Alarm = AlarmEntityMapper.asDomain(this)
+fun AlarmEntity.asDomain(): Alarm = AlarmEntityMapper.asDomain(this)
