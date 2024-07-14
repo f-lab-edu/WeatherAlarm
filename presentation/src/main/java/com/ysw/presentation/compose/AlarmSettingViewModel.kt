@@ -2,7 +2,7 @@ package com.ysw.presentation.compose
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
-import com.ysw.domain.Alarm
+import com.ysw.domain.models.Alarm
 import com.ysw.domain.usecase.DeleteAlarmUseCase
 import com.ysw.domain.usecase.GetAlarmUseCase
 import com.ysw.domain.usecase.InsertAlarmUseCase
