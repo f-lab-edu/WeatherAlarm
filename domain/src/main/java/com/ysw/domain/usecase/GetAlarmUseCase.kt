@@ -2,9 +2,8 @@ package com.ysw.domain.usecase
 
 import com.ysw.domain.models.Alarm
 import com.ysw.domain.repository.AlarmRepository
-import java.time.LocalTime
 import javax.inject.Inject
 
 class GetAlarmUseCase @Inject constructor(private val alarmRepository: AlarmRepository) {
-    suspend operator fun invoke(time: LocalTime): Alarm = alarmRepository.getAlarm(time)
+    suspend operator fun invoke(id: Int): Alarm = alarmRepository.getAlarm(id)
 }

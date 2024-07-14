@@ -50,8 +50,8 @@ import java.time.LocalTime
 fun AlarmListScreen(
     navController: NavController,
     alarmUiState: List<AlarmListUi>,
-    setOnOffAlarm : (Boolean, LocalTime) -> Unit,
-    deleteAlarm : (LocalTime) -> Unit,
+    setOnOffAlarm: (Boolean, Int) -> Unit,
+    deleteAlarm: (Int) -> Unit,
 ) {
 
     Scaffold(
@@ -59,12 +59,12 @@ fun AlarmListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate("${AlarmScreen.ALARM_SETTING.name}/null")
+                    navController.navigate("${AlarmScreen.ALARM_SETTING.name}/null/null")
                 },
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "알람 추가"
+                    contentDescription = null
                 )
             }
         }
@@ -73,9 +73,9 @@ fun AlarmListScreen(
         AlarmListColumn(
             alarmData = alarmUiState,
             paddingValues = innerPadding,
-            onAlarmItemClick = {navController.navigate( "${AlarmScreen.ALARM_SETTING.name}/${it}")},
+            onAlarmItemClick = { id, time -> navController.navigate("${AlarmScreen.ALARM_SETTING.name}/${id}/${time}") },
             setOnOffAlarm = { isOn, time -> setOnOffAlarm(isOn, time) },
-            deleteAlarm = {deleteAlarm(it)}
+            deleteAlarm = { deleteAlarm(it) }
         )
     }
 }
@@ -91,9 +91,9 @@ fun AlarmListScreen(
 private fun AlarmListColumn(
     alarmData: List<AlarmListUi>,
     paddingValues: PaddingValues,
-    onAlarmItemClick: (LocalTime) -> Unit,
-    setOnOffAlarm: (Boolean, LocalTime) -> Unit,
-    deleteAlarm: (LocalTime) -> Unit
+    onAlarmItemClick: (Int, LocalTime) -> Unit,
+    setOnOffAlarm: (Boolean, Int) -> Unit,
+    deleteAlarm: (Int) -> Unit
 ) {
 
     LazyColumn(
@@ -102,12 +102,12 @@ private fun AlarmListColumn(
             .padding(paddingValues),
         contentPadding = PaddingValues(16.dp),
     ) {
-        items(items = alarmData, key = {it.time}) { alarm ->
+        items(items = alarmData, key = { it.id }) { alarm ->
             AlarmItem(
                 alarmData = alarm,
-                onItemClick = { onAlarmItemClick(it) },
+                onAlarmItemClick = { id, time -> onAlarmItemClick(id, time) },
                 setOnOffAlarm = { isOn, time -> setOnOffAlarm(isOn, time) },
-            ){
+            ) {
                 deleteAlarm(it)
             }
         }
@@ -118,15 +118,15 @@ private fun AlarmListColumn(
 @Composable
 private fun AlarmItem(
     alarmData: AlarmListUi,
-    onItemClick: (LocalTime) -> Unit = {},
-    setOnOffAlarm: (Boolean, LocalTime) -> Unit,
-    onDismissedToDelete: (LocalTime) -> Unit,
+    onAlarmItemClick: (Int, LocalTime) -> Unit,
+    setOnOffAlarm: (Boolean, Int) -> Unit,
+    onDismissedToDelete: (Int) -> Unit,
 ) {
 
     val dismissState = rememberDismissState(
         confirmValueChange = { dismissedValue ->
             if (dismissedValue == DismissValue.DismissedToEnd) {
-                onDismissedToDelete(alarmData.time)
+                onDismissedToDelete(alarmData.id)
                 true
             } else {
                 false
@@ -148,7 +148,7 @@ private fun AlarmItem(
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable {
-                        onItemClick(alarmData.time)
+                        onAlarmItemClick(alarmData.id, alarmData.time)
                     }
                     .padding(10.dp),
             ) {
@@ -162,7 +162,7 @@ private fun AlarmItem(
                     Spacer(modifier = Modifier.weight(1f))
                     Text(text = alarmData.alarmList.joinToString(), fontSize = 10.sp)
                     Switch(checked = alarmData.isOn, onCheckedChange = {
-                        setOnOffAlarm(it, alarmData.time)
+                        setOnOffAlarm(it, alarmData.id)
                     })
                 }
             }
@@ -184,8 +184,7 @@ fun DeleteBackGround(
             .fillMaxSize()
             .padding(10.dp)
             .clip(RoundedCornerShape(10.dp))
-            .background(color)
-        ,
+            .background(color),
         contentAlignment = Alignment.CenterStart,
     ) {
         Icon(

@@ -1,9 +1,8 @@
 package com.ysw.domain.usecase
 
 import com.ysw.domain.repository.AlarmRepository
-import java.time.LocalTime
 import javax.inject.Inject
 
-class SetOnOffAlarmUseCase @Inject constructor (private val alarmRepository: AlarmRepository) {
-    suspend operator fun invoke(isOn: Boolean, time: LocalTime) = alarmRepository.setOnOffAlarm(isOn, time)
+class SetOnOffAlarmUseCase @Inject constructor(private val alarmRepository: AlarmRepository) {
+    suspend operator fun invoke(isOn: Boolean, id: Int) = alarmRepository.setOnOffAlarm(isOn, id)
 }

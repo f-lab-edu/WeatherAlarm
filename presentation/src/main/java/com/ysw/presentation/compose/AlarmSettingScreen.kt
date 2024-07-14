@@ -49,6 +49,8 @@ import androidx.core.content.ContextCompat
 import com.commandiron.wheel_picker_compose.WheelTimePicker
 import com.commandiron.wheel_picker_compose.core.TimeFormat
 import com.ysw.presentation.R
+import com.ysw.presentation.utilities.PERMISSION_GRANTED
+import com.ysw.presentation.utilities.SELECT_MUSIC_INTENT_TITLE
 import com.ysw.presentation.utilities.findActivity
 import com.ysw.presentation.utilities.getFileName
 import java.time.LocalTime
@@ -61,29 +63,28 @@ import java.time.LocalTime
 
 @Composable
 fun AlarmSettingScreen(
-    argsTime: LocalTime?,
+    alarmId: Int?,
+    time: LocalTime?,
     onDoneClick: () -> Unit,
     alarmUiState: AlarmSettingUi,
-    setAlarmUi: (LocalTime?) -> Unit,
+    setAlarmUi: (Int?) -> Unit,
     getAlarmTime: (LocalTime) -> Unit,
     updateWeekDay: (String) -> Unit,
     getAlarmVolume: (Float) -> Unit,
     setAlarmMusic: (String, Uri) -> Unit,
-    saveAlarm: (LocalTime?) -> Unit
+    saveAlarm: (Int?) -> Unit
 ) {
 
-
-    LaunchedEffect(argsTime) {
-        setAlarmUi(argsTime)
+    LaunchedEffect(alarmId) {
+        setAlarmUi(alarmId)
     }
-
 
     Scaffold(
         bottomBar = {
             BottomButtons(
                 onCancelClick = { onDoneClick() },
                 onDoneClick = {
-                    saveAlarm(argsTime)
+                    saveAlarm(alarmId)
                     onDoneClick()
                 },
                 state = alarmUiState
@@ -104,7 +105,7 @@ fun AlarmSettingScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 WheelTimerPickerView(
-                    time = argsTime?:LocalTime.now(),
+                    time = time ?: LocalTime.now(),
                     getAlarmTime = { getAlarmTime(it) }
                 )
                 DayChipUI(
@@ -349,7 +350,7 @@ fun getMusicFromStorage(
         type = "audio/*"
         addCategory(Intent.CATEGORY_OPENABLE)
     }
-    launcher(Intent.createChooser(intent, "Select Audio"))
+    launcher(Intent.createChooser(intent, SELECT_MUSIC_INTENT_TITLE))
 }
 
 
@@ -376,7 +377,7 @@ private fun BottomButtons(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             if (isGranted) {
-                Toast.makeText(context, "Permission granted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, PERMISSION_GRANTED, Toast.LENGTH_SHORT).show()
             }
             isShowPermissionDialog = !isGranted
         }
