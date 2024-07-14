@@ -1,7 +1,7 @@
 package com.ysw.data.entity.mapper
 
 import com.ysw.data.entity.AlarmEntity
-import com.ysw.domain.Alarm
+import com.ysw.domain.models.Alarm
 
 
 object AlarmEntityMapper : EntityMapper<Alarm, AlarmEntity> {

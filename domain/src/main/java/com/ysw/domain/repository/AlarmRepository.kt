@@ -1,6 +1,6 @@
 package com.ysw.domain.repository
 
-import com.ysw.domain.Alarm
+import com.ysw.domain.models.Alarm
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalTime
 

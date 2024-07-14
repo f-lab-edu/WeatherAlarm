@@ -1,7 +1,7 @@
-package com.ysw.data.datasource
+package com.ysw.data.source.local
 
 import com.ysw.data.entity.AlarmEntity
-import com.ysw.data.AlarmDao
+import com.ysw.data.source.local.dao.AlarmDao
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalTime
 import javax.inject.Inject

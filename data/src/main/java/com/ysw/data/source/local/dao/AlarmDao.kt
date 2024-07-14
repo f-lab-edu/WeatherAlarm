@@ -1,4 +1,4 @@
-package com.ysw.data
+package com.ysw.data.source.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert

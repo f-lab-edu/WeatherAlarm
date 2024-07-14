@@ -1,7 +1,7 @@
 package com.ysw.data.entity.mapper
 
 import com.ysw.data.entity.AlarmEntity
-import com.ysw.domain.Alarm
+import com.ysw.domain.models.Alarm
 
 object AlarmEntityListMapper : EntityMapper<List<Alarm>, List<AlarmEntity>>{
     override fun asEntity(domain: List<Alarm>): List<AlarmEntity> {
