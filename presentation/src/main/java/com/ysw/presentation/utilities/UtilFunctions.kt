@@ -5,6 +5,9 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 internal fun Context.findActivity(): Activity {
     var context = this
@@ -19,12 +22,28 @@ internal fun getFileName(
     uri: Uri,
     context: Context
 ): String {
-    var name: String = ""
-    val cursor = context.contentResolver.query(uri, null, null, null, null)
-    cursor?.use { cursor ->
-        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        cursor.moveToFirst()
-        name = cursor.getString(nameIndex)
+
+    var fileName: String = ""
+
+    if (uri.scheme == LOCAL_URI_SCHEME) {
+        val resId = uri.lastPathSegment
+        resId?.let {
+            fileName = it
+        }
+    } else {
+        val cursor = context.contentResolver.query(uri, null, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val displayNameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                fileName = it.getString(displayNameIndex)
+            }
+        }
     }
-    return name
+    return fileName
+}
+
+internal fun ViewModel.launchInScope(action: suspend () -> Unit) {
+    viewModelScope.launch {
+        action()
+    }
 }

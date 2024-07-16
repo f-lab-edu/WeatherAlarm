@@ -8,8 +8,10 @@ import java.time.LocalTime
 interface AlarmRepository {
 
     fun getAllAlarms(): Flow<List<Alarm>>
-    suspend fun getAlarm(time: LocalTime): Alarm
+    suspend fun getAlarm(id: Int): Alarm
     suspend fun insertAlarm(alarm: Alarm)
-    suspend fun deleteAlarm(time: LocalTime)
-    suspend fun setOnOffAlarm(isOn: Boolean, time: LocalTime)
+    suspend fun updateAlarm(alarm: Alarm)
+    suspend fun deleteAlarm(id: Int)
+    suspend fun setOnOffAlarm(isOn: Boolean, id: Int)
+    suspend fun isAlarmExist(time: LocalTime): List<Alarm>
 }

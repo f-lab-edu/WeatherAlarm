@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,11 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ysw.presentation.compose.AlarmUiState
-import com.ysw.presentation.compose.AlarmViewModel
+import com.ysw.presentation.compose.AlarmSettingUi
+import com.ysw.presentation.compose.AlarmSettingViewModel
 import com.ysw.presentation.ui.theme.MyApplicationTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -52,7 +50,7 @@ class AlarmActivity : ComponentActivity() {
         activityOn()
         setContent {
             MyApplicationTheme {
-                val viewModel: AlarmViewModel = hiltViewModel<AlarmViewModel>()
+                val viewModel: AlarmSettingViewModel = hiltViewModel<AlarmSettingViewModel>()
                 val uiState by viewModel.uiState.collectAsState()
                 AlarmScreen(
                     closeAction = {this@AlarmActivity.finish()},
@@ -84,7 +82,7 @@ class AlarmActivity : ComponentActivity() {
 @Composable
 fun AlarmScreen(
     closeAction: () -> Unit,
-    state : AlarmUiState,
+    state : AlarmSettingUi,
 
 ) {
     val context = LocalContext.current
@@ -119,17 +117,6 @@ fun AlarmScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MyApplicationTheme {
-        AlarmScreen(closeAction = {
-
-        })
-
-
-    }
-}
 
 /**
  * Activity on

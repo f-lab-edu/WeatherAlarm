@@ -18,12 +18,13 @@ import java.time.LocalTime
 @Entity(tableName = "alarm")
 data class AlarmEntity(
 
-    @PrimaryKey
-    val time : LocalTime = LocalTime.now(),
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val time: LocalTime = LocalTime.now(),
     @ColumnInfo(name = "alarm_list")
-    val alarmDayList : List<String> = emptyList(),
-    val volume : Float = 0.0f,
-    val isOn : Boolean = false,
+    val alarmDayList: List<String> = emptyList(),
+    val volume: Float = 0.0f,
+    val isOn: Boolean = false,
     @ColumnInfo(name = "music_list_by_weather")
-    val musicListByWeather : Map<String, Uri> = emptyMap()
+    val musicListByWeather: Map<String, Uri> = emptyMap()
 )

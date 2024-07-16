@@ -15,6 +15,9 @@ import java.time.format.DateTimeFormatter
  * @constructor Create empty Converters
  */
 internal class AlarmConverters {
+
+    private val gson = Gson()
+
     @TypeConverter
     fun fromLocalTime(time: LocalTime?): String? {
         return time?.format(DateTimeFormatter.ofPattern("HH:mm"))
@@ -28,40 +31,30 @@ internal class AlarmConverters {
     }
 
     @TypeConverter
-    fun fromUri(uri: Uri?): String? {
-        return uri?.toString()
-    }
-
-    @TypeConverter
-    fun toUri(uri: String?): Uri? {
-        return uri?.let {
-            Uri.parse(it)
-        }
-    }
-
-    @TypeConverter
     fun fromStringList(list: List<String>?): String? {
-        return Gson().toJson(list)
+        return gson.toJson(list)
     }
 
     @TypeConverter
     fun toStringList(listString: String?): List<String>? {
         return listString?.let {
             val listType = object : TypeToken<List<String>>() {}.type
-            Gson().fromJson(it, listType)
+            gson.fromJson(it, listType)
         }
     }
 
     @TypeConverter
     fun fromStringUriMap(map: Map<String, Uri>?): String? {
-        return Gson().toJson(map)
+        val stringUriMap = map?.mapValues { it.value.toString() }
+        return gson.toJson(stringUriMap)
     }
 
     @TypeConverter
     fun toStringUriMap(mapString: String?): Map<String, Uri>? {
         return mapString?.let {
-            val mapType = object : TypeToken<Map<String, Uri>>() {}.type
-            Gson().fromJson(it, mapType)
+            val mapType = object : TypeToken<Map<String, String>>() {}.type
+            val stringToUriMap: Map<String, String> = gson.fromJson(it, mapType)
+            stringToUriMap.mapValues { Uri.parse(it.value) }
         }
     }
 
