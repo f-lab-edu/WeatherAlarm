@@ -28,31 +28,26 @@ class AlarmRepositoryImpl @Inject constructor(
 
 
     override suspend fun getAlarm(id: Int): Alarm =
-        runWithDispatcher { localDatasource.getAlarm(id).asDomain() }
+        runWithDispatcher(ioDispatcher) { localDatasource.getAlarm(id).asDomain() }
 
     override suspend fun insertAlarm(alarm: Alarm) =
-        runWithDispatcher { localDatasource.insertAlarm(alarm.asEntity()) }
+        runWithDispatcher(ioDispatcher) { localDatasource.insertAlarm(alarm.asEntity()) }
 
 
     override suspend fun updateAlarm(alarm: Alarm) =
-        runWithDispatcher { localDatasource.updateAlarm(alarm.asEntity()) }
+        runWithDispatcher(ioDispatcher) { localDatasource.updateAlarm(alarm.asEntity()) }
 
 
     override suspend fun deleteAlarm(id: Int) =
-        runWithDispatcher { localDatasource.deleteAlarm(id) }
+        runWithDispatcher(ioDispatcher) { localDatasource.deleteAlarm(id) }
 
 
     override suspend fun setOnOffAlarm(isOn: Boolean, id: Int) =
-        runWithDispatcher { localDatasource.setOnOffAlarm(isOn, id) }
+        runWithDispatcher(ioDispatcher) { localDatasource.setOnOffAlarm(isOn, id) }
 
 
     override suspend fun isAlarmExist(time: LocalTime): List<Alarm> =
-        runWithDispatcher { localDatasource.isAlarmExist(time).asDomain() }
-
-
-    private suspend fun <T> runWithDispatcher(runFunction: suspend () -> T): T =
-        withContext(ioDispatcher) {
-            runFunction()
-        }
+        runWithDispatcher(ioDispatcher) { localDatasource.isAlarmExist(time).asDomain() }
 
 }
+

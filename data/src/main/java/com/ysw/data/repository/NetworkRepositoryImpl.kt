@@ -16,7 +16,7 @@ class NetworkRepositoryImpl @Inject constructor(
 ) : NetworkRepository {
 
     override suspend fun getWeather(lat: Double, lon: Double): DomainWeather {
-        return runWithDispatcher{
+        return runWithDispatcher(ioDispatcher){
             val weatherResponse = networkWeatherDataSource.getWeather(lat, lon)
             if (weatherResponse.isSuccessful) {
                 val weatherData = weatherResponse.body() ?: throw Exception("Response body is null")
@@ -27,9 +27,4 @@ class NetworkRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun <T> runWithDispatcher(runFunction: suspend () -> T): T {
-        return withContext(ioDispatcher) {
-            runFunction()
-        }
-    }
 }
