@@ -27,11 +27,11 @@ class AlarmSettingViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    private val _uiState = MutableStateFlow(AlarmSettingUi())
-    val uiState: StateFlow<AlarmSettingUi> = _uiState
+    private val _uiState = MutableStateFlow(AlarmSettingUiState())
+    val uiState: StateFlow<AlarmSettingUiState> = _uiState
 
     fun getAlarmTime(localTime: LocalTime) {
-        updateUiState { currentState ->
+        _uiState.updateUiState { currentState ->
             currentState.copy(time = localTime)
         }
     }
@@ -43,13 +43,13 @@ class AlarmSettingViewModel @Inject constructor(
         } else {
             currentList.add(day)
         }
-        updateUiState { currentState ->
+        _uiState.updateUiState { currentState ->
             currentState.copy(alarmList = currentList)
         }
     }
 
     fun getAlarmVolume(volume: Float) {
-        updateUiState { currentState ->
+        _uiState.updateUiState{ currentState ->
             currentState.copy(volume = volume)
         }
     }
@@ -57,7 +57,7 @@ class AlarmSettingViewModel @Inject constructor(
     fun setAlarmMusic(weather: String, music: Uri) {
         val currentMap = _uiState.value.musicListByWeather.toMutableMap()
         currentMap[weather] = music
-        updateUiState { currentState ->
+        _uiState.updateUiState{ currentState ->
             currentState.copy(musicListByWeather = currentMap)
         }
     }
@@ -84,15 +84,15 @@ class AlarmSettingViewModel @Inject constructor(
                     }
                 }
             }
-            updateUiState { currentState ->
+            _uiState.updateUiState{ currentState ->
                 currentState.copy(
                     musicListByWeather = defaultMusicMap
                 )
             }
         } else {
             launchInScope {
-                getAlarmUseCase.invoke(id).let {
-                    updateUiState { currentState ->
+                getAlarmUseCase(id).let {
+                    _uiState.updateUiState{ currentState ->
                         currentState.copy(
                             id = it.id,
                             time = it.time,
@@ -150,10 +150,6 @@ class AlarmSettingViewModel @Inject constructor(
         }
     }
 
-    private inline fun updateUiState(update: (currentState: AlarmSettingUi) -> AlarmSettingUi) {
-        _uiState.update { currentState ->
-            update(currentState)
-        }
-    }
 
 }
+

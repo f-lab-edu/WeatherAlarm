@@ -18,24 +18,22 @@ class AlarmListViewModel @Inject constructor(
     private val setonAlarmUseCase: SetOnOffAlarmUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<List<AlarmListUi>>(emptyList())
-    val uiState: StateFlow<List<AlarmListUi>> = _uiState
+    private val _uiState = MutableStateFlow<List<AlarmListUiState>>(emptyList())
+    val uiState: StateFlow<List<AlarmListUiState>> = _uiState
 
 
-    init {
-        setAlarmListUi()
-    }
-
-    private fun setAlarmListUi() {
+     fun setAlarmListUi() {
         launchInScope {
             getAllAlarmsUseCase().collect { alarmList ->
-                _uiState.value = alarmList.map {
-                    AlarmListUi(
-                        id = it.id,
-                        time = it.time,
-                        alarmList = it.alarmDayList,
-                        isOn = it.isOn
-                    )
+                _uiState.updateUiState {
+                    alarmList.map {
+                        AlarmListUiState(
+                            id = it.id,
+                            time = it.time,
+                            alarmList = it.alarmDayList,
+                            isOn = it.isOn
+                        )
+                    }
                 }
             }
         }
