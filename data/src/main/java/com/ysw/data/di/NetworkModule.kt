@@ -1,6 +1,7 @@
 package com.ysw.data.di
 
 import com.google.gson.GsonBuilder
+import com.ysw.data.BuildConfig
 import com.ysw.data.WeatherConst
 import com.ysw.data.source.network.api.WeatherApi
 import dagger.Module
@@ -43,7 +44,11 @@ object NetworkModule {
             .readTimeout(TIMEOUT_READ, TimeUnit.SECONDS)
             .writeTimeout(TIMEOUT_WRITE, TimeUnit.SECONDS)
             .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
+                if (BuildConfig.DEBUG){
+                    level = HttpLoggingInterceptor.Level.BODY
+                } else {
+                    level = HttpLoggingInterceptor.Level.NONE
+                }
             })
             .build()
     }
