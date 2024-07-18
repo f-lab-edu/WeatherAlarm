@@ -61,7 +61,8 @@ fun AppNavHost(
                 navController = navController,
                 alarmUiState = uiState,
                 setOnOffAlarm = viewModel::setOnOffAlarm,
-                deleteAlarm = viewModel::deleteAlarm
+                deleteAlarm = viewModel::deleteAlarm,
+                setAlarmListUI = viewModel::setAlarmListUi
             )
 
         }

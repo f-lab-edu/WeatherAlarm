@@ -1,4 +1,4 @@
-package com.ysw.data
+package com.ysw.data.source.local
 
 import android.net.Uri
 import androidx.room.TypeConverter

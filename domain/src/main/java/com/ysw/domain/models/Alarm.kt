@@ -1,4 +1,4 @@
-package com.ysw.domain
+package com.ysw.domain.models
 
 import android.net.Uri
 import java.time.LocalTime

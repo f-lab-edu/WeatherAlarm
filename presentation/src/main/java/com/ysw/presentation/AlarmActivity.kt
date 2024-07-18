@@ -28,7 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.ysw.presentation.compose.AlarmSettingUi
+import com.ysw.presentation.compose.AlarmSettingUiState
 import com.ysw.presentation.compose.AlarmSettingViewModel
 import com.ysw.presentation.ui.theme.MyApplicationTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -82,9 +82,9 @@ class AlarmActivity : ComponentActivity() {
 @Composable
 fun AlarmScreen(
     closeAction: () -> Unit,
-    state : AlarmSettingUi,
+    state : AlarmSettingUiState,
 
-) {
+    ) {
     val context = LocalContext.current
     Column(
         modifier = Modifier

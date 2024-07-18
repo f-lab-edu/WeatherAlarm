@@ -2,8 +2,7 @@ package com.ysw.data.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import com.ysw.data.AlarmDatabase
+import com.ysw.data.source.local.AlarmDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

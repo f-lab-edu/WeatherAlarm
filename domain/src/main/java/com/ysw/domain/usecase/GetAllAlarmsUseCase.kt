@@ -1,6 +1,6 @@
 package com.ysw.domain.usecase
 
-import com.ysw.domain.Alarm
+import com.ysw.domain.models.Alarm
 import com.ysw.domain.repository.AlarmRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

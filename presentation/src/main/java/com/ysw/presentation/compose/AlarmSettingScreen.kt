@@ -66,7 +66,7 @@ fun AlarmSettingScreen(
     alarmId: Int?,
     time: LocalTime?,
     onDoneClick: () -> Unit,
-    alarmUiState: AlarmSettingUi,
+    alarmUiState: AlarmSettingUiState,
     setAlarmUi: (Int?) -> Unit,
     getAlarmTime: (LocalTime) -> Unit,
     updateWeekDay: (String) -> Unit,
@@ -364,7 +364,7 @@ fun getMusicFromStorage(
 @Composable
 private fun BottomButtons(
     modifier: Modifier = Modifier,
-    state: AlarmSettingUi,
+    state: AlarmSettingUiState,
     onCancelClick: () -> Unit,
     onDoneClick: () -> Unit
 ) {

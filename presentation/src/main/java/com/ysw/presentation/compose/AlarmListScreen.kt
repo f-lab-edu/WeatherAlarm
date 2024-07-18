@@ -30,6 +30,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,10 +50,15 @@ import java.time.LocalTime
 @Composable
 fun AlarmListScreen(
     navController: NavController,
-    alarmUiState: List<AlarmListUi>,
+    alarmUiState: List<AlarmListUiState>,
     setOnOffAlarm: (Boolean, Int) -> Unit,
     deleteAlarm: (Int) -> Unit,
+    setAlarmListUI: () -> Unit
 ) {
+
+    LaunchedEffect(Unit) {
+        setAlarmListUI()
+    }
 
     Scaffold(
         floatingActionButtonPosition = FabPosition.End,
@@ -89,7 +95,7 @@ fun AlarmListScreen(
  */
 @Composable
 private fun AlarmListColumn(
-    alarmData: List<AlarmListUi>,
+    alarmData: List<AlarmListUiState>,
     paddingValues: PaddingValues,
     onAlarmItemClick: (Int, LocalTime) -> Unit,
     setOnOffAlarm: (Boolean, Int) -> Unit,
@@ -117,7 +123,7 @@ private fun AlarmListColumn(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AlarmItem(
-    alarmData: AlarmListUi,
+    alarmData: AlarmListUiState,
     onAlarmItemClick: (Int, LocalTime) -> Unit,
     setOnOffAlarm: (Boolean, Int) -> Unit,
     onDismissedToDelete: (Int) -> Unit,

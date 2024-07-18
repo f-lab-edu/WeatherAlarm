@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -6,14 +8,26 @@ plugins {
 
 }
 
+val properties = Properties()
+val localPropertiesFile = rootProject.file("local.properties").inputStream()
+properties.load(localPropertiesFile)
+localPropertiesFile.close()
+
 android {
+
     namespace = "com.ysw.data"
     compileSdk = 34
 
     defaultConfig {
         minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         consumerProguardFiles("consumer-rules.pro")
+        buildConfigField(
+            "String",
+            "WEATHER_APP_KEY",
+            "${properties["WEATHER_APP_KEY"]}"
+        )
     }
 
     buildTypes {
@@ -31,6 +45,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = "18"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -50,6 +68,13 @@ dependencies {
     //GSON
     implementation ("com.google.code.gson:gson:2.8.8")
 
+    //Rretrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    //OkHttp
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -58,3 +83,4 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+
